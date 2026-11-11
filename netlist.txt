@@ -1,0 +1,93 @@
+*
+* EasyEDA Netlist - ESP32 Weather Station
+* Generated 2026-11-11 from SCH_ESP32_WeatherStation_2026-11-11.json
+*
+
+[ GND ]
+    BZ1     -2
+    J_BTN1  -2
+    J_BTN2  -2
+    J_BTN3  -2
+    J_BTN4  -2
+    J_LCD   -1
+    J_PWR   -2
+    J_RTC   -2
+    J_SENSOR-2
+    LED1    -2
+    LED2    -2
+    LED3    -2
+    U1      -GND
+    U1      -GND2
+
+[ +3V3 ]
+    J_SENSOR-1
+    U1      -3V3
+
+[ +5V ]
+    J_LCD   -2
+    J_PWR   -1
+    J_RTC   -1
+    U1      -VIN
+
+[ BTN_BACK ]
+    J_BTN4  -1
+    U1      -D32
+
+[ BTN_DOWN ]
+    J_BTN3  -1
+    U1      -D13
+
+[ BTN_MENU ]
+    J_BTN1  -1
+    U1      -D27
+
+[ BTN_UP ]
+    J_BTN2  -1
+    U1      -D14
+
+[ BUZZER ]
+    BZ1     -1
+    U1      -D18
+
+[ LED_ALARM ]
+    R3      -1
+    U1      -D33
+
+[ LED_BLUE ]
+    R2      -1
+    U1      -D26
+
+[ LED_GREEN ]
+    R1      -1
+    U1      -D25
+
+[ RTC_CLK ]
+    J_RTC   -3
+    U1      -D19
+
+[ RTC_DAT ]
+    J_RTC   -4
+    U1      -TX2
+
+[ RTC_RST ]
+    J_RTC   -5
+    U1      -RX2
+
+[ SCL ]
+    J_LCD   -4
+    J_SENSOR-3
+    U1      -D22
+
+[ SDA ]
+    J_LCD   -3
+    J_SENSOR-4
+    U1      -D21
+
+[ R1_2 -> LED1_A ]
+    R1-2        LED1-1
+
+[ R2_2 -> LED2_A ]
+    R2-2        LED2-1
+
+[ R3_2 -> LED3_A ]
+    R3-2        LED3-1

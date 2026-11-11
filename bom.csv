@@ -1,0 +1,17 @@
+Designator,Value / Description,Footprint,Quantity,Notes
+U1,ESP32-DEVKIT-V1-30PIN_DZ,ESP32-DEVKIT-V1-30PIN_DZ,1,"ESP32 DevKit V1, 30-pin. Feeds 3V3 to the sensor only."
+J_PWR,USB-C pigtail +5V/GND (2P 2.54mm),HDR-TH_1x2-P2.54-V-M,1,"USB-C 2-wire pigtail: red = +5V (pin 1), black = GND (pin 2)."
+J_BTN1,Off-board panel button MENU (2P 2.54mm),HDR-TH_1x2-P2.54-V-M,1,"Panel button MENU -> GPIO27, other leg to GND (uses internal pull-up)."
+J_BTN2,Off-board panel button UP (2P 2.54mm),HDR-TH_1x2-P2.54-V-M,1,"Panel button UP -> GPIO14, other leg to GND."
+J_BTN3,Off-board panel button DOWN (2P 2.54mm),HDR-TH_1x2-P2.54-V-M,1,"Panel button DOWN -> GPIO13, other leg to GND."
+J_BTN4,Off-board panel button BACK (2P 2.54mm),HDR-TH_1x2-P2.54-V-M,1,"Panel button BACK -> GPIO32, other leg to GND."
+R1,220Ω 1/4W axial resistor,R_AXIAL-0.4,1,220R in series with LED1.
+R2,220Ω 1/4W axial resistor,R_AXIAL-0.4,1,220R in series with LED2.
+R3,220Ω 1/4W axial resistor,R_AXIAL-0.4,1,220R in series with LED3.
+LED1,LED-GREEN 5mm,LED-TH_F5,1,Green 5mm - heartbeat.
+LED2,LED-BLUE 5mm,LED-TH_F5,1,Blue 5mm - Bluetooth Rx activity.
+LED3,LED-RED/WHITE 5mm,LED-TH_F5,1,Red or white 5mm - alarm.
+BZ1,"Passive buzzer, 5V, GPIO18",BUZ-TH_BD12.5,1,"5V passive buzzer, + = GPIO18, - = GND."
+J_LCD,LCD 2004 with I2C backpack (4P 2.54mm),HDR-TH_1x4-P2.54-V-M,1,"LCD 2004 + I2C backpack: GND, VCC(5V), SDA, SCL."
+J_SENSOR,AHT20 + BMP280 combined module (4P 2.54mm),HDR-TH_1x4-P2.54-V-M,1,"AHT20 + BMP280 combo module: VCC(3V3), GND, SCL, SDA."
+J_RTC,DS1302 RTC module (5P 2.54mm),HDR-TH_1x5-P2.54-V-M,1,"DS1302 module: VCC(5V), GND, CLK, DAT, RST."

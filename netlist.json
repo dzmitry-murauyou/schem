@@ -1,0 +1,98 @@
+{
+  "nets": {
+    "+5V": [
+      "U1-VIN",
+      "J_PWR-1",
+      "J_LCD-2",
+      "J_RTC-1"
+    ],
+    "+3V3": [
+      "U1-3V3",
+      "J_SENSOR-1"
+    ],
+    "GND": [
+      "U1-GND",
+      "U1-GND2",
+      "J_PWR-2",
+      "J_LCD-1",
+      "J_SENSOR-2",
+      "J_RTC-2",
+      "J_BTN1-2",
+      "J_BTN2-2",
+      "J_BTN3-2",
+      "J_BTN4-2",
+      "LED1-2",
+      "LED2-2",
+      "LED3-2",
+      "BZ1-2"
+    ],
+    "SDA": [
+      "U1-D21",
+      "J_LCD-3",
+      "J_SENSOR-4"
+    ],
+    "SCL": [
+      "U1-D22",
+      "J_LCD-4",
+      "J_SENSOR-3"
+    ],
+    "RTC_RST": [
+      "U1-RX2",
+      "J_RTC-5"
+    ],
+    "RTC_DAT": [
+      "U1-TX2",
+      "J_RTC-4"
+    ],
+    "RTC_CLK": [
+      "U1-D19",
+      "J_RTC-3"
+    ],
+    "BUZZER": [
+      "U1-D18",
+      "BZ1-1"
+    ],
+    "BTN_MENU": [
+      "U1-D27",
+      "J_BTN1-1"
+    ],
+    "BTN_UP": [
+      "U1-D14",
+      "J_BTN2-1"
+    ],
+    "BTN_DOWN": [
+      "U1-D13",
+      "J_BTN3-1"
+    ],
+    "BTN_BACK": [
+      "U1-D32",
+      "J_BTN4-1"
+    ],
+    "LED_GREEN": [
+      "U1-D25",
+      "R1-1"
+    ],
+    "LED_BLUE": [
+      "U1-D26",
+      "R2-1"
+    ],
+    "LED_ALARM": [
+      "U1-D33",
+      "R3-1"
+    ]
+  },
+  "local_nets": {
+    "R1_2_LED1_A": [
+      "R1-2",
+      "LED1-1"
+    ],
+    "R2_2_LED2_A": [
+      "R2-2",
+      "LED2-1"
+    ],
+    "R3_2_LED3_A": [
+      "R3-2",
+      "LED3-1"
+    ]
+  }
+}

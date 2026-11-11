@@ -1,0 +1,35 @@
+PCB  50 x 100 mm, single sided, 67 pads, 4 holes
+routed nets: 18 ; traces: 22 ; GND = copper pour
+total trace length: 992 mm
+
+placement DRC (pad clearance 0.30 mm): clean
+connectivity (every net in one piece): OK - all 19 nets connected
+
+pour check: see below
+  ground still split into 5 islands - 64% of the GND pads are on the main one
+  JUMPER on the component side: LED1.K -> U1.14
+  JUMPER on the component side: J_BTN1.2 -> J_BTN3.2
+  JUMPER on the component side: J_BTN2.2 -> J_BTN3.2
+  JUMPER on the component side: J_SENSOR.2 -> J_RTC.2
+  ground fill ends up in 20 fragments (5 hold GND pads)
+
+net -> pads
+  +3V3       U1.30 J_SENSOR.1
+  +5V        U1.15 J_RTC.1 J_LCD.2 J_PWR.1
+  BTN_BACK   U1.6 J_BTN4.1
+  BTN_DOWN   U1.13 J_BTN3.1
+  BTN_MENU   U1.10 J_BTN1.1
+  BTN_UP     U1.11 J_BTN2.1
+  BUZZER     U1.22 BZ1.1
+  GND        U1.14 U1.29 J_BTN1.2 J_BTN2.2 J_BTN3.2 J_BTN4.2 LED1.K LED2.K LED3.K J_RTC.2 J_SENSOR.2 J_LCD.1 J_PWR.2 BZ1.2
+  LED1_A     LED1.A R1.2
+  LED2_A     LED2.A R2.2
+  LED3_A     LED3.A R3.2
+  LED_ALARM  U1.7 R3.1
+  LED_BLUE   U1.9 R2.1
+  LED_GREEN  U1.8 R1.1
+  RTC_CLK    U1.21 J_RTC.3
+  RTC_DAT    U1.24 J_RTC.4
+  RTC_RST    U1.25 J_RTC.5
+  SCL        U1.17 J_SENSOR.3 J_LCD.4
+  SDA        U1.20 J_SENSOR.4 J_LCD.3

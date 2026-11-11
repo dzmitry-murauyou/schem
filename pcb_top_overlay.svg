@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="50.00mm" height="100.00mm" viewBox="0 0 50.00 100.00">
+<rect width="50.00" height="100.00" fill="#fff"/>
+<rect x="0.15" y="0.15" width="49.70" height="99.70" fill="none" stroke="#000" stroke-width="0.2"/>
+<circle cx="4.000" cy="4.000" r="1.600" fill="none" stroke="#000" stroke-width="0.15"/>
+<circle cx="46.000" cy="4.000" r="1.600" fill="none" stroke="#000" stroke-width="0.15"/>
+<circle cx="4.000" cy="96.000" r="1.600" fill="none" stroke="#000" stroke-width="0.15"/>
+<circle cx="46.000" cy="96.000" r="1.600" fill="none" stroke="#000" stroke-width="0.15"/>
+<rect x="10.835" y="48.550" width="28.33" height="51.45" fill="none" stroke="#000" stroke-width="0.2"/>
+<text x="12.34" y="97.50" font-size="2" fill="#000">ESP32 DevKit V1</text>
+<text x="10.700" y="87.900" font-size="1.15" fill="#000" transform="rotate(-90 10.700 87.900)" text-anchor="start">EN</text>
+<text x="10.700" y="85.360" font-size="1.15" fill="#000" transform="rotate(-90 10.700 85.360)" text-anchor="start">VP</text>
+<text x="10.700" y="82.820" font-size="1.15" fill="#000" transform="rotate(-90 10.700 82.820)" text-anchor="start">VN</text>
+<text x="10.700" y="80.280" font-size="1.15" fill="#000" transform="rotate(-90 10.700 80.280)" text-anchor="start">IO34</text>
+<text x="10.700" y="77.740" font-size="1.15" fill="#000" transform="rotate(-90 10.700 77.740)" text-anchor="start">IO35</text>
+<text x="10.700" y="75.200" font-size="1.15" fill="#000" transform="rotate(-90 10.700 75.200)" text-anchor="start">IO32</text>
+<text x="10.700" y="72.660" font-size="1.15" fill="#000" transform="rotate(-90 10.700 72.660)" text-anchor="start">IO33</text>
+<text x="10.700" y="70.120" font-size="1.15" fill="#000" transform="rotate(-90 10.700 70.120)" text-anchor="start">IO25</text>
+<text x="10.700" y="67.580" font-size="1.15" fill="#000" transform="rotate(-90 10.700 67.580)" text-anchor="start">IO26</text>
+<text x="10.700" y="65.040" font-size="1.15" fill="#000" transform="rotate(-90 10.700 65.040)" text-anchor="start">IO27</text>
+<text x="10.700" y="62.500" font-size="1.15" fill="#000" transform="rotate(-90 10.700 62.500)" text-anchor="start">IO14</text>
+<text x="10.700" y="59.960" font-size="1.15" fill="#000" transform="rotate(-90 10.700 59.960)" text-anchor="start">IO12</text>
+<text x="10.700" y="57.420" font-size="1.15" fill="#000" transform="rotate(-90 10.700 57.420)" text-anchor="start">IO13</text>
+<text x="10.700" y="54.880" font-size="1.15" fill="#000" transform="rotate(-90 10.700 54.880)" text-anchor="start">GND</text>
+<text x="10.700" y="52.340" font-size="1.15" fill="#000" transform="rotate(-90 10.700 52.340)" text-anchor="start">VIN</text>
+<text x="39.300" y="87.900" font-size="1.15" fill="#000" transform="rotate(-90 39.300 87.900)" text-anchor="start">IO23</text>
+<text x="39.300" y="85.360" font-size="1.15" fill="#000" transform="rotate(-90 39.300 85.360)" text-anchor="start">IO22</text>
+<text x="39.300" y="82.820" font-size="1.15" fill="#000" transform="rotate(-90 39.300 82.820)" text-anchor="start">TX0</text>
+<text x="39.300" y="80.280" font-size="1.15" fill="#000" transform="rotate(-90 39.300 80.280)" text-anchor="start">RX0</text>
+<text x="39.300" y="77.740" font-size="1.15" fill="#000" transform="rotate(-90 39.300 77.740)" text-anchor="start">IO21</text>
+<text x="39.300" y="75.200" font-size="1.15" fill="#000" transform="rotate(-90 39.300 75.200)" text-anchor="start">IO19</text>
+<text x="39.300" y="72.660" font-size="1.15" fill="#000" transform="rotate(-90 39.300 72.660)" text-anchor="start">IO18</text>
+<text x="39.300" y="70.120" font-size="1.15" fill="#000" transform="rotate(-90 39.300 70.120)" text-anchor="start">IO5</text>
+<text x="39.300" y="67.580" font-size="1.15" fill="#000" transform="rotate(-90 39.300 67.580)" text-anchor="start">TX2</text>
+<text x="39.300" y="65.040" font-size="1.15" fill="#000" transform="rotate(-90 39.300 65.040)" text-anchor="start">RX2</text>
+<text x="39.300" y="62.500" font-size="1.15" fill="#000" transform="rotate(-90 39.300 62.500)" text-anchor="start">IO4</text>
+<text x="39.300" y="59.960" font-size="1.15" fill="#000" transform="rotate(-90 39.300 59.960)" text-anchor="start">IO2</text>
+<text x="39.300" y="57.420" font-size="1.15" fill="#000" transform="rotate(-90 39.300 57.420)" text-anchor="start">IO15</text>
+<text x="39.300" y="54.880" font-size="1.15" fill="#000" transform="rotate(-90 39.300 54.880)" text-anchor="start">GND</text>
+<text x="39.300" y="52.340" font-size="1.15" fill="#000" transform="rotate(-90 39.300 52.340)" text-anchor="start">3V3</text>
+<circle cx="6.540" cy="88.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="4.000" cy="88.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="6.540" cy="78.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="4.000" cy="78.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="6.540" cy="68.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="4.000" cy="68.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="6.540" cy="58.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="4.000" cy="58.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="8.540" cy="46.000" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="6.000" cy="46.000" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="8.540" cy="42.000" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="8.540" cy="34.380" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="8.540" cy="30.000" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="6.000" cy="30.000" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="8.540" cy="26.000" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="8.540" cy="18.380" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="8.540" cy="14.000" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="6.000" cy="14.000" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="8.540" cy="10.000" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="8.540" cy="2.380" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="22.000" cy="8.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="24.540" cy="8.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="27.080" cy="8.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="29.620" cy="8.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="32.160" cy="8.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="22.000" cy="18.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="24.540" cy="18.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="27.080" cy="18.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="29.620" cy="18.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="22.000" cy="28.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="24.540" cy="28.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="27.080" cy="28.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="29.620" cy="28.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="22.000" cy="38.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="24.540" cy="38.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="34.000" cy="38.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="41.600" cy="38.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<polyline points="6.125,46.125 7.625,46.125 7.625,47.625 7.875,47.625 7.875,47.875 10.625,47.875 10.625,52.875 12.375,52.875 12.375,54.625" fill="none" stroke="#c00000" stroke-width="0.35" stroke-dasharray="1.2 0.8"/>
+<text x="7.00" y="47.00" font-size="1.2" fill="#c00000">jump LED1.K</text>
+<polyline points="4.125,88.125 2.375,88.125 2.375,77.125 2.625,77.125 2.625,76.625 3.125,76.625 3.125,76.375 4.125,76.375 4.125,68.125" fill="none" stroke="#c00000" stroke-width="0.35" stroke-dasharray="1.2 0.8"/>
+<text x="5.00" y="89.00" font-size="1.2" fill="#c00000">jump J_BTN1.2</text>
+<polyline points="4.125,78.125 4.125,68.125" fill="none" stroke="#c00000" stroke-width="0.35" stroke-dasharray="1.2 0.8"/>
+<text x="5.00" y="79.00" font-size="1.2" fill="#c00000">jump J_BTN2.2</text>
+<polyline points="24.625,18.125 24.625,8.125" fill="none" stroke="#c00000" stroke-width="0.35" stroke-dasharray="1.2 0.8"/>
+<text x="25.54" y="19.00" font-size="1.2" fill="#c00000">jump J_SENSOR.2</text>
+<text x="4.00" y="91.20" font-size="1.6" fill="#000">J_BTN1</text>
+<text x="5.74" y="86.00" font-size="1.1" fill="#444">SIG</text>
+<text x="3.20" y="86.00" font-size="1.1" fill="#444">GND</text>
+<text x="4.00" y="81.20" font-size="1.6" fill="#000">J_BTN2</text>
+<text x="5.74" y="76.00" font-size="1.1" fill="#444">SIG</text>
+<text x="3.20" y="76.00" font-size="1.1" fill="#444">GND</text>
+<text x="4.00" y="71.20" font-size="1.6" fill="#000">J_BTN3</text>
+<text x="5.74" y="66.00" font-size="1.1" fill="#444">SIG</text>
+<text x="3.20" y="66.00" font-size="1.1" fill="#444">GND</text>
+<text x="4.00" y="61.20" font-size="1.6" fill="#000">J_BTN4</text>
+<text x="5.74" y="56.00" font-size="1.1" fill="#444">SIG</text>
+<text x="3.20" y="56.00" font-size="1.1" fill="#444">GND</text>
+<text x="6.00" y="49.20" font-size="1.6" fill="#000">LED1</text>
+<text x="7.74" y="44.00" font-size="1.1" fill="#444">A</text>
+<text x="5.20" y="44.00" font-size="1.1" fill="#444">K</text>
+<text x="8.54" y="45.20" font-size="1.6" fill="#000">R1</text>
+<text x="7.74" y="40.00" font-size="1.1" fill="#444">2</text>
+<text x="7.74" y="32.38" font-size="1.1" fill="#444">1</text>
+<text x="6.00" y="33.20" font-size="1.6" fill="#000">LED2</text>
+<text x="7.74" y="28.00" font-size="1.1" fill="#444">A</text>
+<text x="5.20" y="28.00" font-size="1.1" fill="#444">K</text>
+<text x="8.54" y="29.20" font-size="1.6" fill="#000">R2</text>
+<text x="7.74" y="24.00" font-size="1.1" fill="#444">2</text>
+<text x="7.74" y="16.38" font-size="1.1" fill="#444">1</text>
+<text x="6.00" y="17.20" font-size="1.6" fill="#000">LED3</text>
+<text x="7.74" y="12.00" font-size="1.1" fill="#444">A</text>
+<text x="5.20" y="12.00" font-size="1.1" fill="#444">K</text>
+<text x="8.54" y="13.20" font-size="1.6" fill="#000">R3</text>
+<text x="7.74" y="8.00" font-size="1.1" fill="#444">2</text>
+<text x="7.74" y="0.38" font-size="1.1" fill="#444">1</text>
+<text x="22.00" y="11.20" font-size="1.6" fill="#000">J_RTC</text>
+<text x="21.20" y="6.00" font-size="1.1" fill="#444">VCC</text>
+<text x="23.74" y="6.00" font-size="1.1" fill="#444">GND</text>
+<text x="26.28" y="6.00" font-size="1.1" fill="#444">CLK</text>
+<text x="28.82" y="6.00" font-size="1.1" fill="#444">DAT</text>
+<text x="31.36" y="6.00" font-size="1.1" fill="#444">RST</text>
+<text x="22.00" y="21.20" font-size="1.6" fill="#000">J_SENSOR</text>
+<text x="21.20" y="16.00" font-size="1.1" fill="#444">VCC</text>
+<text x="23.74" y="16.00" font-size="1.1" fill="#444">GND</text>
+<text x="26.28" y="16.00" font-size="1.1" fill="#444">SCL</text>
+<text x="28.82" y="16.00" font-size="1.1" fill="#444">SDA</text>
+<text x="22.00" y="31.20" font-size="1.6" fill="#000">J_LCD</text>
+<text x="21.20" y="26.00" font-size="1.1" fill="#444">GND</text>
+<text x="23.74" y="26.00" font-size="1.1" fill="#444">VCC</text>
+<text x="26.28" y="26.00" font-size="1.1" fill="#444">SDA</text>
+<text x="28.82" y="26.00" font-size="1.1" fill="#444">SCL</text>
+<text x="22.00" y="41.20" font-size="1.6" fill="#000">J_PWR</text>
+<text x="21.20" y="36.00" font-size="1.1" fill="#444">+5V</text>
+<text x="23.74" y="36.00" font-size="1.1" fill="#444">GND</text>
+<text x="34.00" y="41.20" font-size="1.6" fill="#000">BZ1</text>
+<text x="33.20" y="36.00" font-size="1.1" fill="#444">+</text>
+<text x="40.80" y="36.00" font-size="1.1" fill="#444">-</text>
+</svg>

@@ -1,0 +1,44 @@
+EasyEDA PCB check - 2026-11-24
+====================================================================
+board          : 50 x 100 mm, origin bottom-left, USB at the top
+footprints     : 17
+pads           : 69  (56 connected, 13 spare GPIO pads)
+nets           : 19 (all from the schematic netlist)
+mounting holes : 4, 3.2 mm NPTH
+
+pad clearance  : OK (>= 0.30 mm)
+silkscreen     : OK - no text or line on a pad, no text collisions
+connectivity   : OK - board pads match the schematic netlist exactly
+
+Unconnected (spare) ESP32 pins, left for future use:
+   D15(3), D2(4), D4(5), D5(8), RX0(12), TX0(13), D23(15), D12(19), D35(26), D34(27), VN(28), VP(29), EN(30)
+
+Netlist and ratline length (route these):
+  GND          15 pads  ~  205 mm  U1.2 U1.17 J_BTN1.2 J_BTN2.2 J_BTN3.2 J_BTN4.2 LED1.K LED2.K LED3.K J_RTC.2 J_SENSOR.2 J_LCD.1 J_PWR.2 C1.2 BZ1.2
+  +5V           5 pads  ~  120 mm  U1.16 J_RTC.1 J_LCD.2 J_PWR.1 C1.1
+  SDA           3 pads  ~   67 mm  U1.11 J_SENSOR.4 J_LCD.3
+  SCL           3 pads  ~   62 mm  U1.14 J_SENSOR.3 J_LCD.4
+  +3V3          2 pads  ~   90 mm  U1.1 J_SENSOR.1
+  RTC_RST       2 pads  ~   67 mm  U1.6 J_RTC.5
+  RTC_DAT       2 pads  ~   67 mm  U1.7 J_RTC.4
+  BUZZER        2 pads  ~   48 mm  U1.9 BZ1.1
+  RTC_CLK       2 pads  ~   61 mm  U1.10 J_RTC.3
+  BTN_DOWN      2 pads  ~   39 mm  U1.18 J_BTN3.1
+  BTN_UP        2 pads  ~   32 mm  U1.20 J_BTN2.1
+  BTN_MENU      2 pads  ~   32 mm  U1.21 J_BTN1.1
+  LED_BLUE      2 pads  ~   47 mm  U1.22 R2.1
+  LED_GREEN     2 pads  ~   31 mm  U1.23 R1.1
+  LED_ALARM     2 pads  ~   52 mm  U1.24 R3.1
+  BTN_BACK      2 pads  ~   35 mm  U1.25 J_BTN4.1
+  R1_2_LED1_A   2 pads  ~   13 mm  R1.2 LED1.A
+  R2_2_LED2_A   2 pads  ~   13 mm  R2.2 LED2.A
+  R3_2_LED3_A   2 pads  ~   13 mm  R3.2 LED3.A
+
+  approx. total track length to route: 1093 mm
+
+Routing rules written into the file:
+  track width 0.60 mm, clearance 0.30 mm, via 0.8/0.4 mm
+  +5V and GND are flagged as wide nets (1.2 mm) in routerRule
+
+WARNING: pin 1 of U1 is 3V3 at the USB end. Check the silkscreen
+         of your module before soldering the sockets.

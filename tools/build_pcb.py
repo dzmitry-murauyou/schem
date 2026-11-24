@@ -154,6 +154,12 @@ for i, (nm, net) in enumerate([("GND", "GND"), ("VCC", "+5V"),
     pad("J_LCD", str(i + 1), nm, net, 22.0 + i * P2, 28.0)
 pad("J_PWR", "1", "+5V", "+5V", 22.0, 38.0)
 pad("J_PWR", "2", "GND", "GND", 24.54, 38.0)
+
+# --- power reservoir: 1000 uF / 10 V electrolytic, D8.0 mm, 3.5 mm pitch -----
+# Sits on the same row as J_PWR, immediately to its left, so the +5V/GND loop
+# to the input is a few millimetres long.  Pin 1 = '+' (long leg), pin 2 = '-'.
+pad("C1", "1", "+", "+5V", 15.0, 38.0, PAD_SMALL, DRILL_SMALL)
+pad("C1", "2", "-", "GND", 18.5, 38.0, PAD_SMALL, DRILL_SMALL)
 pad("BZ1", "1", "+", "BUZZER", 34.0, 38.0)
 pad("BZ1", "2", "-", "GND", 41.6, 38.0)
 
@@ -849,8 +855,13 @@ def write_png(path, ppi=600):
 def write_pdf(path, bottom=True):
     from reportlab.pdfgen import canvas as rlc
     from reportlab.lib.units import mm as MM
-    c = rlc.Canvas(path, pagesize=(BW * MM, BH * MM))
+    c = rlc.Canvas(path, pagesize=(BW * MM, BH * MM), invariant=1)
     c.setTitle("ESP32 weather station - 50x100 mm PCB")
+    # fixed metadata, so the same board always produces the same file
+    c.setCreator("tools/build_pcb.py")
+    c.setProducer("tools/build_pcb.py")
+    c.setAuthor("schem-fix")
+    c._doc.invariant = 1
 
     def P(x, y):
         return ((BW - x) if bottom else x) * MM, y * MM

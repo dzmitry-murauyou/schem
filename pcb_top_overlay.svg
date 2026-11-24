@@ -72,14 +72,16 @@
 <circle cx="29.620" cy="28.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
 <circle cx="22.000" cy="38.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
 <circle cx="24.540" cy="38.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="15.000" cy="38.000" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
+<circle cx="18.500" cy="38.000" r="1.000" fill="none" stroke="#555" stroke-width="0.1"/>
 <circle cx="34.000" cy="38.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
 <circle cx="41.600" cy="38.000" r="0.900" fill="none" stroke="#555" stroke-width="0.1"/>
+<polyline points="4.125,78.125 4.125,68.125" fill="none" stroke="#c00000" stroke-width="0.35" stroke-dasharray="1.2 0.8"/>
+<text x="5.00" y="79.00" font-size="1.2" fill="#c00000">jump J_BTN2.2</text>
 <polyline points="6.125,46.125 7.625,46.125 7.625,47.625 7.875,47.625 7.875,47.875 10.625,47.875 10.625,52.875 12.375,52.875 12.375,54.625" fill="none" stroke="#c00000" stroke-width="0.35" stroke-dasharray="1.2 0.8"/>
 <text x="7.00" y="47.00" font-size="1.2" fill="#c00000">jump LED1.K</text>
 <polyline points="4.125,88.125 2.375,88.125 2.375,77.125 2.625,77.125 2.625,76.625 3.125,76.625 3.125,76.375 4.125,76.375 4.125,68.125" fill="none" stroke="#c00000" stroke-width="0.35" stroke-dasharray="1.2 0.8"/>
 <text x="5.00" y="89.00" font-size="1.2" fill="#c00000">jump J_BTN1.2</text>
-<polyline points="4.125,78.125 4.125,68.125" fill="none" stroke="#c00000" stroke-width="0.35" stroke-dasharray="1.2 0.8"/>
-<text x="5.00" y="79.00" font-size="1.2" fill="#c00000">jump J_BTN2.2</text>
 <polyline points="24.625,18.125 24.625,8.125" fill="none" stroke="#c00000" stroke-width="0.35" stroke-dasharray="1.2 0.8"/>
 <text x="25.54" y="19.00" font-size="1.2" fill="#c00000">jump J_SENSOR.2</text>
 <text x="4.00" y="91.20" font-size="1.6" fill="#000">J_BTN1</text>
@@ -131,6 +133,9 @@
 <text x="22.00" y="41.20" font-size="1.6" fill="#000">J_PWR</text>
 <text x="21.20" y="36.00" font-size="1.1" fill="#444">+5V</text>
 <text x="23.74" y="36.00" font-size="1.1" fill="#444">GND</text>
+<text x="15.00" y="41.20" font-size="1.6" fill="#000">C1</text>
+<text x="14.20" y="36.00" font-size="1.1" fill="#444">+</text>
+<text x="17.70" y="36.00" font-size="1.1" fill="#444">-</text>
 <text x="34.00" y="41.20" font-size="1.6" fill="#000">BZ1</text>
 <text x="33.20" y="36.00" font-size="1.1" fill="#444">+</text>
 <text x="40.80" y="36.00" font-size="1.1" fill="#444">-</text>

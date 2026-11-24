@@ -252,6 +252,39 @@ def build_led(x, py, des, disp, pkg, seed, color="#00A000"):
     return shape, {"1": (x - 20, py), "2": (x + 40, py), "A": (x - 20, py), "K": (x + 40, py)}
 
 
+def build_capacitor(x0, py, des, value, pkg, seed):
+    """Electrolytic capacitor: pin1 at x0 (left, '+'), pin2 at x0+60 (right, '-').
+    Straight plate at x0+25, curved plate at x0+35 (the curved plate is the
+    negative side, per the usual electrolytic symbol)."""
+    arc = [(x0 + 35, py - 10), (x0 + 38, py - 6), (x0 + 40, py - 2),
+           (x0 + 40, py + 2), (x0 + 38, py + 6), (x0 + 35, py + 10)]
+    primitives = [
+        txt("N", x0 + 12, py - 13, value),
+        txt("P", x0 + 12, py - 23, des),
+        txt("L", x0 + 3, py + 7, "+"),
+        txt("L", x0 + 52, py + 7, "-"),
+        pline(x0, py, x0 + 25, py),
+        pline(x0 + 25, py - 10, x0 + 25, py + 10),
+        polyline(arc, BODY_COLOR),
+        pline(x0 + 35, py, x0 + 60, py),
+        pin("1", x0, py, 180, x0 + 25, "+", show_name=0, show_num=0),
+        pin("2", x0 + 60, py, 0, x0 + 35, "-", show_name=0, show_num=0),
+    ]
+    att = attrs([
+        ("package", pkg),
+        ("Manufacturer Part", value),
+        ("Supplier Part", ""),
+        ("Manufacturer", ""),
+        ("Contributor", "schem-fix"),
+        ("JLCPCB Part Class", "Extended Part"),
+        ("spicePre", "C"),
+        ("spiceSymbolName", "CAP"),
+    ])
+    shape = lib_head(x0, py, att, IDS.nid(), seed) + "#@$" + "#@$".join(primitives)
+    return shape, {"1": (x0, py), "2": (x0 + 60, py),
+                   "+": (x0, py), "-": (x0 + 60, py)}
+
+
 def build_buzzer(bx, by, des, disp, pkg, seed):
     """Passive buzzer: body bx..bx+30 / by..by+40, two pins on the left, pin1 = '+', pin2 = '-'."""
     primitives = [
@@ -318,11 +351,11 @@ def esp32_shape(original):
 #  net connectivity description  (designator, pin) -> net
 # --------------------------------------------------------------------------- #
 NETS = {
-    "+5V":       [("U1", "VIN"), ("J_PWR", "1"), ("J_LCD", "2"), ("J_RTC", "1")],
+    "+5V":       [("U1", "VIN"), ("J_PWR", "1"), ("J_LCD", "2"), ("J_RTC", "1"), ("C1", "1")],
     "+3V3":      [("U1", "3V3"), ("J_SENSOR", "1")],
     "GND":       [("U1", "GND"), ("U1", "GND2"), ("J_PWR", "2"), ("J_LCD", "1"), ("J_SENSOR", "2"),
                   ("J_RTC", "2"), ("J_BTN1", "2"), ("J_BTN2", "2"), ("J_BTN3", "2"), ("J_BTN4", "2"),
-                  ("LED1", "2"), ("LED2", "2"), ("LED3", "2"), ("BZ1", "2")],
+                  ("LED1", "2"), ("LED2", "2"), ("LED3", "2"), ("BZ1", "2"), ("C1", "2")],
     "SDA":       [("U1", "D21"), ("J_LCD", "3"), ("J_SENSOR", "4")],
     "SCL":       [("U1", "D22"), ("J_LCD", "4"), ("J_SENSOR", "3")],
     "RTC_RST":   [("U1", "RX2"), ("J_RTC", "5")],
@@ -359,7 +392,7 @@ def main():
     frame = frame.replace("~comment~Sheet_1~1~start~gge148~0~frame_title",
                           "~comment~ESP32 Weather Station~1~start~gge148~0~frame_title")
     frame = frame.replace("~comment~1.0~1~start~gge160~0~frame_version",
-                          "~comment~1.1~1~start~gge160~0~frame_version")
+                          "~comment~1.2~1~start~gge160~0~frame_version")
     frame = frame.replace("~comment~2026-11-04~1~start~gge172~0~frame_date",
                           "~comment~2026-11-11~1~start~gge172~0~frame_date")
     shapes.append(frame)
@@ -380,6 +413,17 @@ def main():
     for k, v in p.items():
         pins[("J_PWR", k)] = v
     des_of["J_PWR"] = ("USB-C pigtail +5V/GND (2P 2.54mm)", "HDR-TH_1x2-P2.54-V-M", "J")
+
+    # ---- 2b. power reservoir capacitor ------------------------------------
+    # 1000 uF / 10 V electrolytic straight across +5V/GND, next to the power
+    # input, so the ESP32's Wi-Fi transmit peaks do not sag the rail.
+    s, p = build_capacitor(320, -750, "C1", "1000\u00b5F 10V",
+                           "CAP-TH_D8.0-P3.5", "c1")
+    shapes.append(s)
+    for k, v in p.items():
+        pins[("C1", k)] = v
+    des_of["C1"] = ("1000\u00b5F 10V electrolytic, + = +5V, - = GND",
+                    "CAP-TH_D8.0-P3.5", "C")
 
     # ---- 3. off-board chassis buttons -------------------------------------
     buttons = [
@@ -474,6 +518,7 @@ def main():
         "LED2": (20, 1, "start"),
         "LED3": (20, 1, "start"),
         "BZ1": (20, -1, "end"),
+        "C1": (20, -1, "start"),
     }
     wired = set()
     for a, b in DIRECT_WIRES:
@@ -485,6 +530,9 @@ def main():
                 continue
             x, y = pins[(des, pinname)]
             length, direction, anchor = STUB[des]
+            if des == "C1":                       # pin 1 stubs left, pin 2 right
+                direction = -1 if pinname == "1" else 1
+                anchor = "start"
             if direction is None:                 # ESP32: stub away from the body
                 direction = -1 if x == ESP32_X["L"] else 1
             x2 = x + direction * length
@@ -509,7 +557,7 @@ def main():
         "editorVersion": src["editorVersion"],
         "docType": src["docType"],
         "title": "ESP32 Weather Station",
-        "description": "ESP32 DevKit V1 + LCD2004 I2C + AHT20/BMP280 + DS1302 + 4 panel buttons + 3 status LEDs + buzzer",
+        "description": "ESP32 DevKit V1 + LCD2004 I2C + AHT20/BMP280 + DS1302 + 4 panel buttons + 3 status LEDs + buzzer + 1000uF/10V power reservoir",
         "colors": {},
         "schematics": [{
             "docType": "1",
@@ -677,12 +725,13 @@ def write_netlist(nets, des_of):
 
 
 def write_bom(des_of):
-    order = ["U1", "J_PWR", "J_BTN1", "J_BTN2", "J_BTN3", "J_BTN4",
+    order = ["U1", "J_PWR", "C1", "J_BTN1", "J_BTN2", "J_BTN3", "J_BTN4",
              "R1", "R2", "R3", "LED1", "LED2", "LED3", "BZ1",
              "J_LCD", "J_SENSOR", "J_RTC"]
     notes = {
         "U1": "ESP32 DevKit V1, 30-pin. Feeds 3V3 to the sensor only.",
         "J_PWR": "USB-C 2-wire pigtail: red = +5V (pin 1), black = GND (pin 2).",
+        "C1": "1000uF 10V electrolytic across +5V/GND at the power input (pin 1 = +, long leg; pin 2 = -, short leg / stripe). D8.0mm, 3.5mm pitch.",
         "J_BTN1": "Panel button MENU -> GPIO27, other leg to GND (uses internal pull-up).",
         "J_BTN2": "Panel button UP -> GPIO14, other leg to GND.",
         "J_BTN3": "Panel button DOWN -> GPIO13, other leg to GND.",

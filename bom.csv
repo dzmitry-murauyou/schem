@@ -1,6 +1,7 @@
 Designator,Value / Description,Footprint,Quantity,Notes
 U1,ESP32-DEVKIT-V1-30PIN_DZ,ESP32-DEVKIT-V1-30PIN_DZ,1,"ESP32 DevKit V1, 30-pin. Feeds 3V3 to the sensor only."
 J_PWR,USB-C pigtail +5V/GND (2P 2.54mm),HDR-TH_1x2-P2.54-V-M,1,"USB-C 2-wire pigtail: red = +5V (pin 1), black = GND (pin 2)."
+C1,"1000µF 10V electrolytic, + = +5V, - = GND",CAP-TH_D8.0-P3.5,1,"1000uF 10V electrolytic across +5V/GND at the power input (pin 1 = +, long leg; pin 2 = -, short leg / stripe). D8.0mm, 3.5mm pitch."
 J_BTN1,Off-board panel button MENU (2P 2.54mm),HDR-TH_1x2-P2.54-V-M,1,"Panel button MENU -> GPIO27, other leg to GND (uses internal pull-up)."
 J_BTN2,Off-board panel button UP (2P 2.54mm),HDR-TH_1x2-P2.54-V-M,1,"Panel button UP -> GPIO14, other leg to GND."
 J_BTN3,Off-board panel button DOWN (2P 2.54mm),HDR-TH_1x2-P2.54-V-M,1,"Panel button DOWN -> GPIO13, other leg to GND."

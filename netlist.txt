@@ -5,6 +5,7 @@
 
 [ GND ]
     BZ1     -2
+    C1      -2
     J_BTN1  -2
     J_BTN2  -2
     J_BTN3  -2
@@ -24,6 +25,7 @@
     U1      -3V3
 
 [ +5V ]
+    C1      -1
     J_LCD   -2
     J_PWR   -1
     J_RTC   -1

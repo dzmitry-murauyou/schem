@@ -10,6 +10,12 @@ hardware specification.
 | `netlist.txt` / `netlist.json` | Netlist extracted from the drawn geometry |
 | `bom.csv` | Bill of materials |
 | `preview.png` | Quick raster preview of the new sheet (handy to eyeball placement) |
+| `ESP32_WeatherStation_2026-11-11_pcb.json` | **PCB for EasyEDA Standard** — open it, ratlines are ready, route and go |
+| `pcb_preview.png` / `.pdf` | 50 × 100 mm board, top view with the ratsnest (see what you are about to route) |
+| `pcb_easyeda_check.txt` | What the PCB generator verified: pads, nets, DRC, silk, ratline length |
+| `tools/build_easyeda_pcb.py` | The PCB generator (writes the JSON above) |
+| `tools/pcb_common.py` | Placement of every part on the 50 × 100 mm board — shared by `build_easyeda_pcb.py` and `build_pcb_preview.py` |
+| `tools/build_pcb_preview.py` | Draws `pcb_preview.*` from the same placement |
 | `tools/build_schematic.py` | The generator — edit this and re-run to change anything |
 | `tools/check_layout.py` | Layout guard: bounds, component overlap, label collision |
 | `tools/render_png.py` | Dev-only preview renderer |
@@ -22,16 +28,23 @@ python3 tools/build_schematic.py && python3 tools/check_layout.py
 
 Both scripts verify themselves: the first rebuilds the netlist **from the drawn
 wires and net labels** and asserts it matches the intended connectivity
-(`VERIFY OK - 16 nets, 67 pins, 51 wires, 48 net labels`), the second asserts
-nothing escapes the drawing frame or collides.
+(`VERIFY OK - 16 nets, 69 pins, 53 wires, 50 net labels`), the second asserts
+nothing escapes the drawing frame or collides (`LAYOUT OK - 17 components`).
 
 ## How to import
 
-EasyEDA → **File → Open → EasyEDA** (or *File → Import → EasyEDA File*) and pick
-`SCH_ESP32_WeatherStation_2026-11-11.json`. It is the same format and
-`editorVersion` (6.5.61) as your original, so it drops straight in. There is no
-PCB in this project — the source was schematic-only (`docType 5`) — so use
-*Design → Convert to PCB* afterwards.
+Two files, two documents:
+
+1. **the schematic** — EasyEDA → **File → Open → EasyEDA** and pick
+   `SCH_ESP32_WeatherStation_2026-11-11.json`. Same format and `editorVersion`
+   (6.5.61) as your original, so it drops straight in.
+2. **the PCB** — same menu, pick `ESP32_WeatherStation_2026-11-11_pcb.json`.
+   Footprints, pads, nets and the board outline are already there; the ratlines
+   show what to connect. See [section 5](#5-pcb-for-easyeda-route-it-yourself).
+
+EasyEDA Standard keeps one document per file, so the two stay separate — the net
+names are what tie them together. (The old advice "use *Design → Convert to PCB*"
+is no longer needed: the board is in section 5, already laid out and unrouted.)
 
 ---
 
@@ -60,9 +73,9 @@ PCB in this project — the source was schematic-only (`docType 5`) — so use
 
 | Net | Members |
 | --- | --- |
-| `+5V` | `J_PWR.1` (USB-C red), `U1.VIN`, `J_LCD.2` (VCC), `J_RTC.1` (VCC) |
+| `+5V` | `J_PWR.1` (USB-C red), `U1.VIN`, `J_LCD.2` (VCC), `J_RTC.1` (VCC), `C1.+` |
 | `+3V3` | `U1.3V3`, `J_SENSOR.1` (VCC) — **nothing else** |
-| `GND` | `J_PWR.2`, `U1.GND`, `U1.GND2`, `J_LCD.1`, `J_SENSOR.2`, `J_RTC.2`, `J_BTN1-4.2`, `LED1-3.K`, `BZ1.2` |
+| `GND` | `J_PWR.2`, `U1.GND`, `U1.GND2`, `J_LCD.1`, `J_SENSOR.2`, `J_RTC.2`, `J_BTN1-4.2`, `LED1-3.K`, `BZ1.2`, `C1.-` |
 
 ### Signals
 
@@ -84,6 +97,14 @@ PCB in this project — the source was schematic-only (`docType 5`) — so use
 
 Every button header is `pin 1 = signal, pin 2 = GND`, so configure the four
 inputs as `INPUT_PULLUP` (pressed = LOW).
+
+### Power reservoir
+
+`C1` — **1000 µF / 10 V electrolytic**, straight across `+5V` and `GND` next to
+the power input. Pin 1 is `+` (long leg), pin 2 is `−` (short leg / stripe).
+It holds the 5 V rail up during the ESP32's Wi-Fi transmit peaks (~500 mA), which
+otherwise show up as a dip on `VIN`. The working voltage is 10 V against a 5 V
+rail, so there is 2× margin; do not fit it the other way round — it will pop.
 
 ## 3. Things you should still check before ordering
 
@@ -126,7 +147,58 @@ The sheet is organised left-to-right:
 Every net is carried by a short stub wire plus a net label rather than long
 routed wires, which keeps the 10-unit pin pitch on the ESP32 symbol readable.
 
-## 5. PCB — 50 × 100 mm, single sided, for ЛУТ (toner transfer)
+## 5. PCB for EasyEDA (route it yourself)
+
+`ESP32_WeatherStation_2026-11-11_pcb.json` is a **50 × 100 mm board in native
+EasyEDA Standard format** (`docType 3`, editorVersion 6.4.25 — the same format
+family as the schematic). Everything except the tracks is done:
+
+* all **17 footprints** placed and rotated, silkscreen drawn, **pin 1 marked**;
+* **69 pads**, each carrying its real pin number and its **net name from the
+  schematic** — so EasyEDA draws the ratlines for you;
+* board outline 50 × 100 mm on the outline layer, **4 × 3.2 mm mounting holes**;
+* routing rules inside the file: track 0.6 mm, clearance 0.3 mm, via 0.8/0.4 mm,
+  `+5V` and `GND` flagged as 1.2 mm nets.
+
+Open `easyeda.com/editor` → **File → Open → EasyEDA File** and pick the JSON.
+The schematic and the PCB are separate documents in EasyEDA Standard (one file
+per document), so keep the schematic file next to it — the net names are what
+tie the two together.
+
+| | value |
+|---|---|
+| board | 50 × 100 mm, origin bottom-left, USB end at the top |
+| ESP32 | body 28.33 × 51.45 mm, 2 × 15 sockets on 2.54 mm, rows 25.4 mm apart |
+| pin 1 | `3V3`, at the USB end (VIN opposite it), EN at the far end |
+| footprints | headers `HDR-TH_1xN-P2.54-V-M`, `R_AXIAL-0.4`, `LED-TH_F5`, `CAP-TH_D8.0-P3.5`, `BUZ-TH_BD12.5` |
+| pads | ⌀1.8 mm / 1.0 mm drill on headers, ⌀2.0 mm / 0.9 mm on R, LED, C1 |
+
+What the generator checks before it writes the file (`pcb_easyeda_check.txt`):
+
+```
+pad clearance  : OK (>= 0.30 mm)
+silkscreen     : OK - no text or line on a pad, no text collisions
+connectivity   : OK - board pads match the schematic netlist exactly
+```
+
+i.e. all **19 nets / 56 wired pads** land on the right pads, and the 13 spare
+GPIO (D15, D2, D4, D5, RX0, TX0, D23, D12, D35, D34, VN, VP, EN) are left free
+on purpose. `pcb_preview.png` shows the ratsnest: about **1090 mm** of track to
+route. Everything is clear for a single-sided board as well — no track has to
+cross another if you route `+5V`/`GND` around the edge.
+
+If your module's silkscreen has `VIN`/`3V3` at the other end, rebuild with
+`python3 tools/build_easyeda_pcb.py --mirror-esp32`: that writes
+`..._pcb_mirrored.json` with the module rotated 180°, so the two socket rows swap
+exactly like turning the real board around. Use that file instead.
+
+Rebuild:
+
+```bash
+python3 tools/build_easyeda_pcb.py && python3 tools/build_pcb_preview.py
+```
+
+## 6. Alternative: 50 × 100 mm single sided, for ЛУТ (toner transfer)
 
 Generated by `tools/build_pcb.py` (deterministic — same input, same artwork).
 
@@ -144,18 +216,19 @@ Yes — but only in one orientation. The DOIT ESP32 DevKit V1 body is
 
 | | value |
 |---|---|
-| board | 50 × 100 mm, origin bottom-left, USB connector at the top |
+| board | 50 × 100 mm, origin bottom-left, antenna at the top (`y = 100`), USB at the bottom (`y = 48.55`) |
 | ESP32 body | x 10.835…39.165, y 48.55…100 |
 | header rows | x = 12.3 / 37.7 (25.4 mm apart), 2.54 mm pitch, pins y 51.94…87.5 |
 | trace width | 0.5 mm |
 | clearance | 0.3 mm (copper-to-copper, and pour-to-copper) |
-| pads | ⌀1.8 mm on 2.54 mm pitch parts, ⌀2.0 mm on resistors / LEDs |
+| pads | ⌀1.8 mm on 2.54 mm pitch parts, ⌀2.0 mm on resistors / LEDs / C1 |
 | drills | 1.0 mm headers, 0.9 mm resistors / LEDs, 3.2 mm mounting |
 
 ### What is routed
 
-* **18 signal nets are routed as real traces** — 22 trace segments, 992 mm of
-  copper in total. Nothing is left unrouted.
+* **18 signal nets are routed as real traces** — 23 trace segments, 1010 mm of
+  copper in total. Nothing is left unrouted. `C1` sits on the `+5V`/`GND` pads
+  next to `J_PWR`.
 * **GND is a copper pour.** A single-sided pour always gets cut into islands by
   the signal traces, so the generator floods it, finds the islands, and wires
   the ones that stray with **4 insulated jumpers on the component side**. Those
@@ -166,7 +239,7 @@ Yes — but only in one orientation. The DOIT ESP32 DevKit V1 body is
   every net and asserts each one comes out as a **single piece of copper**.
   `connectivity: OK - all 19 nets connected`.
 
-The pour covers ~85 % of the board, which is good for ЛУТ: far less copper to
+The pour covers most of the board, which is good for ЛУТ: far less copper to
 dissolve, so it etches faster and more evenly.
 
 ### Files
@@ -184,12 +257,15 @@ dissolve, so it etches faster and more evenly.
 
 ### Before you etch — read this
 
-1. **Check the ESP32 row order against your actual module.** Pin 1 is the one
-   next to the USB connector. The generator assumes
-   `EN, VP, VN, IO34, IO35, IO32, IO33, IO25, IO26, IO27, IO14, IO12, IO13, GND, VIN`
-   down the left row and `3V3 … IO23` down the right one. If your board is
-   labelled the other way round, rebuild with `--mirror-esp32`. This is the one
-   thing that will scrap the board if it is wrong.
+1. **Check the ESP32 row order against your actual module.** Unlike the
+   EasyEDA board in section 5 (where the USB end is at the top), the ЛУТ
+   generator places the module the other way round (antenna at the top, USB
+   end at `y = 48.55`): `EN, VP, VN, IO34, IO35, IO32, IO33, IO25, IO26, IO27,
+   IO14, IO12, IO13, GND, VIN` down the left row and `IO23, IO22, TX0, RX0,
+   IO21, IO19, IO18, IO5, TX2, RX2, IO4, IO2, IO15, GND, 3V3` down the right
+   one (every pin name is printed on `pcb_top_overlay.pdf`). Check one or two
+   pins before soldering. This is the one thing that will scrap the board if it
+   is wrong.
 2. **Mount the ESP32 on female header sockets**, not soldered flush. Several
    traces pass under the module body; sockets give the clearance they need.
 3. Print `lut_bottom_mirrored.pdf` with **"Actual size"**, never "Fit to page",

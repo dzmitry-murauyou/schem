@@ -234,17 +234,22 @@ def render_pdf(doc, out_pdf, measured_w=None, measured_h=None):
     c.setFillColor(black)
     c.setFont("Helvetica-Bold", 11)
     c.drawCentredString((A4_W / 2.0) * MM_TO_PT, (A4_H - 18.0) * MM_TO_PT,
-                        "ESP32 Weather Station PCB - Print at 100% / Actual Size")
+                        "ESP32 Weather Station PCB - Exact 1:1 (%.1f x %.1f mm)" % (W, H))
     c.setFont("Helvetica", 9)
-    cal_txt = (
-        "Target board: %.1f x %.1f mm  |  Measured on your printer: %.1f x %.1f mm  |  "
-        "Applied scale: X = %.5f, Y = %.5f"
-        % (W, H, mw, mh, sx, sy)
-    )
+    if measured_w is None and measured_h is None:
+        cal_txt = "Scale: X = 1.00000, Y = 1.00000 (no printer calibration)"
+        tip_txt = ("On screen: adjust zoom until 0..%.0f mm matches a ruler on your monitor. "
+                   "On paper: print at 100%% / Actual size." % W)
+    else:
+        cal_txt = (
+            "Target board: %.1f x %.1f mm  |  Measured: %.1f x %.1f mm  |  "
+            "Applied scale: X = %.5f, Y = %.5f"
+            % (W, H, mw, mh, sx, sy)
+        )
+        tip_txt = ("Keep the same page orientation and 100%% scale; verify frame = %.1f x %.1f mm with a ruler."
+                   % (W, H))
     c.drawCentredString((A4_W / 2.0) * MM_TO_PT, (A4_H - 25.0) * MM_TO_PT, cal_txt)
-    c.drawCentredString((A4_W / 2.0) * MM_TO_PT, (A4_H - 31.0) * MM_TO_PT,
-                        "Keep the same page orientation and 100%% scale; verify frame = %.1f x %.1f mm with a ruler."
-                        % (W, H))
+    c.drawCentredString((A4_W / 2.0) * MM_TO_PT, (A4_H - 31.0) * MM_TO_PT, tip_txt)
 
     # ------------------------------------------------------------------ #
     #  Block 1: TOP VIEW (NOT mirrored) - place real ESP32 here to test

@@ -44,10 +44,10 @@ LEFT_ROW = ["3V3", "GND", "D15", "D2", "D4", "RX2", "TX2", "D5", "D18", "D19",
 RIGHT_ROW = ["VIN", "GND2", "D13", "D12", "D14", "D27", "D26", "D25", "D33",
              "D32", "D35", "D34", "VN", "VP", "EN"]
 
-PAD_HDR = 1.8          # 2.54 mm header pad
-DRILL_HDR = 1.0
-PAD_SMALL = 2.0        # resistor / LED / capacitor lead
-DRILL_SMALL = 0.9
+PAD_HDR = 2.0          # 2.54 mm header pad (outer 2.0 mm, hole 0.7 mm)
+DRILL_HDR = 0.7
+PAD_SMALL = 2.0        # resistor / LED / capacitor lead (outer 2.0 mm, hole 0.7 mm)
+DRILL_SMALL = 0.7
 DRILL_MOUNT = 3.2      # mounting holes
 MOUNT_RING = 2.2       # silk circle radius around a mounting hole
 
@@ -168,7 +168,7 @@ class Footprint:
         if self.kind != "header":
             return None
         x, y = self.abs_pad(self.pads[0])
-        a = 1.05
+        a = 1.15
         return [(x - a, y - a), (x + a, y - a), (x + a, y + a), (x - a, y + a),
                 (x - a, y - a)]
 

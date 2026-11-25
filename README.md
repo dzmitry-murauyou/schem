@@ -173,7 +173,7 @@ tie the two together.
 | physical keepout | non-`U1` pads ≥ 5.3 mm, non-`U1` silk ≥ 3.7 mm, and M3 holes ≥ 5.3 mm clear of `U1`'s full 51.45 × 28.33 mm PCB body |
 | pin 1 | `3V3`, bottom-left at the USB end (`VIN` top-left opposite it), `EN` at the far right |
 | footprints | `ESP32-DEVKIT-V1-30PIN_DZ`, headers `HDR-TH_1xN-P2.54-V-M`, `R_AXIAL-0.4`, `LED-TH_F5`, `CAP-TH_D8.0-P3.5`, `BUZ-TH_BD12.5` |
-| pads | ⌀1.8 mm / 1.0 mm drill on headers & `U1`, ⌀2.0 mm / 0.9 mm on R, LED, C1 |
+| pads | ⌀2.0 mm outer / ⌀0.7 mm hole on all component pads (`U1`, headers, R, LED, C1, BZ1) |
 
 Note on module footprint naming: the current schematic (`SCH_ESP32_WeatherStation_2026-11-11.json`)
 and EasyEDA PCB both keep the 30-pin **DOIT ESP32 DevKit V1** pinout and

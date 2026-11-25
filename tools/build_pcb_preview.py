@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Render a preview of the EasyEDA board: 50 x 100 mm, top view.
+"""Render a preview of the EasyEDA board: 100 x 50 mm horizontal, top view.
 
 pcb_preview.png  600 dpi raster, handy for a quick look
 pcb_preview.pdf  1:1 vector, for printing
@@ -102,6 +102,9 @@ def main():
         rh = p["drill"] / 2.0
         dr.ellipse([P(x - rh, y + rh), P(x + rh, y - rh)], fill=C_DRILL)
     for hx, hy in holes:
+        rm = pc.MOUNT_RING
+        dr.ellipse([P(hx - rm, hy + rm), P(hx + rm, hy - rm)],
+                   outline=C_SILK, width=2)
         rh = pc.DRILL_MOUNT / 2.0
         dr.ellipse([P(hx - rh, hy + rh), P(hx + rh, hy - rh)], fill=C_HOLE)
 
@@ -116,8 +119,8 @@ def main():
     draw_stroke(pc.silk_texts(parts, include_title=True), C_TEXT, width=2)
 
     # pad names of the ESP32, inside the socket strip
-    draw_stroke([pc.SilkText(n, x, y, sz)
-                 for n, x, y, sz in pc.esp_pin_names(parts)],
+    draw_stroke([pc.SilkText(n, x, y, sz, rot=rot, owner="U1")
+                 for n, x, y, sz, rot in pc.esp_pin_names(parts)],
                 (120, 120, 120), width=2)
 
     img.save(PNG)
@@ -170,6 +173,10 @@ def main():
     c.setFillColor(Color(1, 1, 1))
     for ref, p, x, y in pc.all_pads(parts):
         c.circle(x * k, y * k, p["drill"] / 2.0 * k, stroke=0, fill=1)
+    c.setStrokeColor(Color(0.72, 0.72, 0.72))
+    c.setLineWidth(0.18)
+    for hx, hy in holes:
+        c.circle(hx * k, hy * k, pc.MOUNT_RING * k, stroke=1, fill=0)
     c.setFillColor(Color(0.25, 0.25, 0.25))
     for hx, hy in holes:
         c.circle(hx * k, hy * k, pc.DRILL_MOUNT / 2.0 * k, stroke=0, fill=1)
@@ -178,7 +185,8 @@ def main():
     c.setStrokeColor(Color(0.35, 0.35, 0.35))
     c.setLineWidth(0.12)
     texts = pc.silk_texts(parts, include_title=True)
-    texts += [pc.SilkText(n, x, y, sz) for n, x, y, sz in pc.esp_pin_names(parts)]
+    texts += [pc.SilkText(n, x, y, sz, rot=rot, owner="U1")
+              for n, x, y, sz, rot in pc.esp_pin_names(parts)]
     for t in texts:
         for line in t.lines:
             if len(line) < 2:
@@ -189,7 +197,7 @@ def main():
                 pth.lineTo(*PP(x, y))
             c.drawPath(pth)
 
-    c.setTitle("ESP32 weather station - 50x100 mm PCB, top view")
+    c.setTitle("ESP32 weather station - 100x50 mm horizontal PCB, top view")
     c.showPage()
     c.save()
     print("wrote %s (1:1, %.0f x %.0f mm)" % (PDF, pc.BW, pc.BH))

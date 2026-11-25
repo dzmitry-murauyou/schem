@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Build a 50 x 100 mm PCB for the ESP32 weather station in the native
+"""Build a 100 x 50 mm PCB for the ESP32 weather station in the native
 EasyEDA Standard format (docType 3), ready to open at easyeda.com/editor.
 
 What comes out:
@@ -157,16 +157,17 @@ def text_shape(x_mm, y_mm, s, size_mm=1.0, layer=3, rot=0, align="middle",
         + "".join(" L %s %s" % pt(qx, qy) for qx, qy in p[1:])
         for p in lines if len(p) > 1
     )
-    # EasyEDA stores TEXT (x, y) at the bottom-left baseline of unrotated text
+    # EasyEDA stores TEXT (x, y) at the rotated bottom-left baseline origin
     w_mm = strokefont.text_width(s, size_mm)
     if align == "middle":
-        x0_mm = x_mm - w_mm / 2.0
+        px0 = -w_mm / 2.0
     elif align == "end":
-        x0_mm = x_mm - w_mm
+        px0 = -w_mm
     else:
-        x0_mm = x_mm
-    y_base_mm = y_mm - size_mm / 2.0 if anchor == "middle" else y_mm
-    tx, ty = pt(x0_mm, y_base_mm)
+        px0 = 0.0
+    py0 = -size_mm / 2.0 if anchor == "middle" else 0.0
+    rx0, ry0 = pc.rotate(px0, py0, rot)
+    tx, ty = pt(x_mm + rx0, y_mm + ry0)
     return ("TEXT~%s~%s~%s~%s~%d~0~%d~~%s~%s~%s~~%s~~0~"
             % (text_type, tx, ty, dim(width_mm), rot, layer, dim(size_mm),
                s, path, IDS.gge()))
@@ -202,10 +203,11 @@ def footprint_shape(fp):
         child.append(line_shape(m, layer=3, width_mm=0.15))
 
     # pad names, tucked in next to each pad (the ESP32 header needs them)
-    for nm, lx, ly, lsz in pc.esp_pin_names([fp]):
+    for nm, lx, ly, lsz, lrot in pc.esp_pin_names([fp]):
         if fp.kind == "module":
-            child.append(text_shape(lx, ly, nm, size_mm=lsz, align="middle",
-                                    anchor="middle", text_type="L"))
+            child.append(text_shape(lx, ly, nm, size_mm=lsz, rot=lrot,
+                                    align="middle", anchor="middle",
+                                    text_type="L"))
 
     # pads
     for p in fp.pads:
@@ -327,8 +329,8 @@ def main():
         },
         "netColors": {},
         "title": "ESP32_WeatherStation_PCB",
-        "description": ("ESP32 weather station, 50x100 mm, EasyEDA Standard "
-                        "format, unrouted with ratlines"),
+        "description": ("ESP32 weather station, 100x50 mm horizontal, "
+                        "EasyEDA Standard format, unrouted with ratlines"),
     }
 
     with open(OUT, "w", encoding="utf-8") as f:
@@ -343,8 +345,9 @@ def main():
     lines = []
     lines.append("EasyEDA PCB check - %s" % date.today().isoformat())
     lines.append("=" * 68)
-    lines.append("board          : %.0f x %.0f mm, origin bottom-left, USB at the top"
-                 % (pc.BW, pc.BH))
+    usb_side = "right (mirrored)" if pc.MIRROR_ESP else "left"
+    lines.append("board          : %.0f x %.0f mm horizontal, origin bottom-left, USB on the %s"
+                 % (pc.BW, pc.BH, usb_side))
     lines.append("footprints     : %d" % len(parts))
     lines.append("pads           : %d  (%d connected, %d spare GPIO pads)"
                  % (len(pads), len(pads) - len(unconnected), len(unconnected)))

@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-"""Board layout shared by the EasyEDA PCB writer and the ЛУТ artwork writer.
+"""Board layout shared by the EasyEDA PCB writer and the PCB preview writer.
 
 One source of truth: the component placement below is used twice --
 
   * tools/build_easyeda_pcb.py turns it into an EasyEDA Standard PCB JSON,
     with footprints, pads, nets, board outline and ratlines ready to route;
-  * tools/build_lut_pcb.py turns it into the toner-transfer artwork
-    (bottom copper mirrored) plus the top overlay.
+  * tools/build_pcb_preview.py turns it into pcb_preview.png / .pdf.
 
 All coordinates are millimetres, origin at the bottom-left corner of the
 board, +X to the right, +Y up (the way you look at the component side).
@@ -19,7 +18,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 SCH = os.path.join(ROOT, "SCH_ESP32_WeatherStation_2026-11-11.json")
 
-BW, BH = 50.0, 100.0      # board outline, mm
+BW, BH = 100.0, 50.0     # board outline, mm (longer side horizontal)
 
 # If your module's silkscreen has VIN/3V3 at the *other* end, rebuild with
 # --mirror-esp32: that 180 deg rotation of the module swaps the two rows and
@@ -30,10 +29,12 @@ EDGE = 0.3                # copper keep-out from the board edge
 # --------------------------------------------------------------------------- #
 #  ESP32 DevKit V1 (30 pin, DOIT) - body and header geometry
 # --------------------------------------------------------------------------- #
-ESP_W, ESP_L = 28.33, 51.45              # module body
-ROW_L, ROW_R = 12.3, 37.7                # header rows, 25.4 mm apart
-PIN1_Y = 94.0                            # pad 1 (3V3), at the USB end
+ESP_W, ESP_L = 28.33, 51.45              # real module PCB body (~51 x 28 mm)
+ROW_SPACE = 25.40                        # header rows, 25.40 mm (1.0") apart
+PIN1_X, PIN1_Y = 11.0, 12.3              # pad 1 (3V3), bottom-left of U1
 PITCH = 2.54
+OVERHANG_USB = 5.70                      # PCB edge past pin 1 / 16 (USB end)
+OVERHANG_ANT = ESP_L - 14 * PITCH - OVERHANG_USB  # ~10.19 mm past pin 15 / 30
 
 # Physical pin numbering follows the DOIT / NodeMCU-32S silkscreen:
 #   pin 1 = 3V3 (left row, USB end) ... pin 15 = D23 (left row, far end)
@@ -127,21 +128,35 @@ class Footprint:
         """(x, y), size for the designator - board coordinates."""
         n = len(self.pads)
         if self.kind == "module":
-            return (self.at(0, 0)[0] + 12.7, self.body[0][1] + 5.0), 1.6
+            # centre of the ESP32 module footprint (horizontal or vertical)
+            (x0, y0), (x1, y1) = self.body
+            if self.rot in (90, 270):
+                p0 = self.abs_pad(self.pads[0])
+                p14 = self.abs_pad(self.pads[14])
+                return ((p0[0] + p14[0]) / 2.0, (y0 + y1) / 2.0), 1.8
+            return (self.at(0, 0)[0] + 12.7, y0 + 5.0), 1.6
         if self.kind == "cap":
             cx, cy = self.abs_pad(self.pads[0])
-            return (cx + 1.0, cy - 5.4), 1.0     # below the can, clear of BZ1
+            return (cx, cy + 7.3), 1.0            # just above the can
         if self.kind == "buzzer":
-            return (self.x + 3.8, self.y + 7.9), 1.1
+            return (self.x + 3.8, self.y + 7.7), 1.05
         if self.kind == "led":
             ax, ay = self.abs_pad(self.pads[0])
             kx, ky = self.abs_pad(self.pads[1])
-            return ((ax + kx) / 2.0, (ay + ky) / 2.0 + 3.5), 1.0
+            cx, cy = (ax + kx) / 2.0, (ay + ky) / 2.0
+            if abs(kx - ax) >= abs(ky - ay):      # horizontal -> label to the right
+                return (max(ax, kx) + 5.0, cy), 1.0
+            return (cx, cy + 3.5), 1.0
         if self.kind == "resistor":
             ax, ay = self.abs_pad(self.pads[0])
             kx, ky = self.abs_pad(self.pads[1])
-            return ((ax + kx) / 2.0, (ay + ky) / 2.0 - 2.6), 1.0
-        # header: above the part, pin 1 is at the bottom
+            return ((ax + kx) / 2.0, (ay + ky) / 2.0 + 2.3), 1.0
+        # header: label facing the interior of the board
+        p0, pN = self.abs_pad(self.pads[0]), self.abs_pad(self.pads[-1])
+        cx, cy = (p0[0] + pN[0]) / 2.0, (p0[1] + pN[1]) / 2.0
+        if abs(pN[0] - p0[0]) >= abs(pN[1] - p0[1]):  # horizontal header
+            off = -3.3 if cy > BH / 2.0 else 3.5
+            return (cx, cy + off), 0.95
         return (self.x, self.y + (n - 1) * PITCH + 3.2), 1.0
 
     def value_pos(self):
@@ -158,59 +173,83 @@ class Footprint:
                 (x - a, y - a)]
 
 
-def esp32_module(x1, y1):
-    """The ESP32 dev board itself: 2 rows of 15 sockets + silk.
+def esp32_module(x1, y1, rot=90):
+    """The ESP32 DOIT DevKit V1 (30 pin): 2 x 15 sockets + full module silk.
 
-    (x1, y1) is pad 1 (3V3), next to the USB connector.  Pads run downwards,
-    so the USB end is at the top of the board.
+    (x1, y1) is pad 1 (3V3) at the USB end.  With rot=90, pad 1 sits at the
+    bottom-left, rows run along +X (25.40 mm = 1.0" apart along Y), USB end is
+    on the left and antenna end is on the right.
     """
     fp = Footprint("U1", "ESP32-DEVKIT-V1-30PIN", "ESP32-DEVKIT-V1-30PIN_DZ",
-                   "module", x1, y1, note="2 x 15 pin sockets, 25.4 mm apart")
+                   "module", x1, y1, rot=rot,
+                   note="2 x 15 pin sockets, 25.40 mm (1.0\") apart; ~51.5 x 28.3 mm body")
     left, right = esp_rows()
     for i, nm in enumerate(left, start=1):
         fp.pad(str(i), nm, None, 0.0, -(i - 1) * PITCH, PAD_HDR, DRILL_HDR,
                sch=nm)
     for i, nm in enumerate(right, start=1):
-        fp.pad(str(i + 15), nm, None, 25.4, -(i - 1) * PITCH, PAD_HDR,
+        fp.pad(str(i + 15), nm, None, ROW_SPACE, -(i - 1) * PITCH, PAD_HDR,
                DRILL_HDR, sch=nm)
-    w = 25.4
-    bot = -(15 - 1) * PITCH
-    t = 2.5                       # body overhang above pad 1
-    b = ESP_L - 15 * PITCH - t    # overhang below the last pad
-    ox = (ESP_W - w) / 2.0        # body overhang past each pad row
-    # socket strip outline: 2 x 15 sockets with 1.27 mm of plastic each side
-    fp.silk.append(("line", [fp.at(-1.6, bot - 1.27), fp.at(w + 1.6, bot - 1.27),
-                             fp.at(w + 1.6, t - 1.27), fp.at(-1.6, t - 1.27),
-                             fp.at(-1.6, bot - 1.27)]))
+
+    w = ROW_SPACE
+    bot = -(15 - 1) * PITCH              # -35.56 mm in local Y
+    ox = (ESP_W - w) / 2.0               # 1.465 mm PCB overhang past each row
     if not MIRROR_ESP:
-        # USB connector, sticking out of the top edge of the strip (3V3/VIN end)
-        fp.silk.append(("line", [fp.at(w / 2 - 4.5, t - 1.27),
-                                 fp.at(w / 2 - 4.5, t + 0.9),
-                                 fp.at(w / 2 + 4.5, t + 0.9),
-                                 fp.at(w / 2 + 4.5, t - 1.27)]))
-        # EN button, at the far end
-        fp.silk.append(("line", [fp.at(-1.2, bot - 1.27), fp.at(2.0, bot - 1.27),
-                                 fp.at(2.0, bot - 3.4), fp.at(-1.2, bot - 3.4),
-                                 fp.at(-1.2, bot - 1.27)]))
-        # pin-1 mark, outboard of the first socket (3V3)
-        fp.silk.append(("line", [fp.at(-2.9, t - 1.27), fp.at(-1.6, t - 1.27),
-                                 fp.at(-1.6, t - 3.0)]))
+        y_top = OVERHANG_USB             # +5.70 mm above pad 1 (USB end)
+        y_bot = bot - OVERHANG_ANT       # -45.75 mm below pad 15 (antenna end)
     else:
-        # Module rotated 180 deg: USB connector and pin 1 (3V3) move to bottom
-        fp.silk.append(("line", [fp.at(w / 2 - 4.5, bot - 1.27),
-                                 fp.at(w / 2 - 4.5, bot - 3.44),
-                                 fp.at(w / 2 + 4.5, bot - 3.44),
-                                 fp.at(w / 2 + 4.5, bot - 1.27)]))
-        fp.silk.append(("line", [fp.at(w + 2.9, bot - 1.27),
-                                 fp.at(w + 1.6, bot - 1.27),
-                                 fp.at(w + 1.6, bot + 0.46)]))
-    fp.set_body_box(-1.6, bot - 1.27, w + 1.6, t - 1.27)
+        y_top = OVERHANG_ANT             # antenna moves to pad-1 end when flipped
+        y_bot = bot - OVERHANG_USB       # USB moves to far end
+
+    # 1. Full DOIT DevKit V1 module PCB perimeter (~51.45 x 28.33 mm)
+    fp.silk.append(("line", [
+        fp.at(-ox, y_bot), fp.at(w + ox, y_bot),
+        fp.at(w + ox, y_top), fp.at(-ox, y_top), fp.at(-ox, y_bot),
+    ]))
+
+    # 2. Separate 1x15 socket-strip outlines inside the module perimeter
+    for sx in (0.0, w):
+        fp.silk.append(("line", [
+            fp.at(sx - 1.27, bot - 1.27), fp.at(sx + 1.27, bot - 1.27),
+            fp.at(sx + 1.27, 1.27), fp.at(sx - 1.27, 1.27),
+            fp.at(sx - 1.27, bot - 1.27),
+        ]))
+
+    if not MIRROR_ESP:
+        # Micro-USB receptacle overhang past the USB PCB edge
+        fp.silk.append(("line", [
+            fp.at(w / 2 - 4.5, y_top), fp.at(w / 2 - 4.5, y_top + 1.8),
+            fp.at(w / 2 + 4.5, y_top + 1.8), fp.at(w / 2 + 4.5, y_top),
+        ]))
+        # Antenna keepout divider + EN button at the antenna end (clear of pads)
+        fp.silk.append(("line", [fp.at(-ox, bot - 3.6), fp.at(w + ox, bot - 3.6)]))
+        fp.silk.append(("line", [
+            fp.at(0.5, bot - 4.4), fp.at(3.7, bot - 4.4),
+            fp.at(3.7, bot - 7.4), fp.at(0.5, bot - 7.4), fp.at(0.5, bot - 4.4),
+        ]))
+        # Pin-1 L-bracket outside pad 1 (3V3), clear of the socket strip
+        fp.silk.append(("line", [
+            fp.at(-1.55, 0.2), fp.at(-1.55, 2.15), fp.at(-0.2, 2.15),
+        ]))
+        fp.set_body_box(-ox, y_bot, w + ox, y_top + 1.8)
+    else:
+        # Module rotated 180 deg: USB connector and pin 1 (3V3) move to far end
+        fp.silk.append(("line", [
+            fp.at(w / 2 - 4.5, y_bot), fp.at(w / 2 - 4.5, y_bot - 1.8),
+            fp.at(w / 2 + 4.5, y_bot - 1.8), fp.at(w / 2 + 4.5, y_bot),
+        ]))
+        fp.silk.append(("line", [fp.at(-ox, 3.6), fp.at(w + ox, 3.6)]))
+        fp.silk.append(("line", [
+            fp.at(w + 1.55, bot - 0.2), fp.at(w + 1.55, bot - 2.15),
+            fp.at(w + 0.2, bot - 2.15),
+        ]))
+        fp.set_body_box(-ox, y_bot - 1.8, w + ox, y_top)
     return fp
 
 
-def header_1xN(ref, value, package, x, y, names, gap=PITCH, note=""):
-    """Vertical 1xN header, pin 1 at the bottom, pins going up (+Y)."""
-    fp = Footprint(ref, value, package, "header", x, y, note=note)
+def header_1xN(ref, value, package, x, y, names, gap=PITCH, rot=0, note=""):
+    """1xN header; rot=0 pins run +Y, rot=270 pins run +X, rot=90 pins run -X."""
+    fp = Footprint(ref, value, package, "header", x, y, rot=rot, note=note)
     for i, nm in enumerate(names):
         fp.pad(str(i + 1), nm, None, 0.0, i * gap, PAD_HDR, DRILL_HDR)
     top = (len(names) - 1) * gap
@@ -288,15 +327,17 @@ def electrolytic(ref, value, x, y, rot=0):
     mx, my = fp.abs_pad(fp.pads[1])
     cx, cy = (px + mx) / 2.0, (py + my) / 2.0
     fp.silk.append(("circle", cx, cy, 4.0))
-    # polarity marks, on the + pad side of the can
+    # polarity marks: '+' near the + pad, '-' near the - pad
     if abs(my - py) >= abs(mx - px):
         sgn = -1.0 if py < my else 1.0
-        fp.silk.append(("line", [(cx - 2.6, cy + sgn * 2.2),
-                                 (cx - 1.2, cy + sgn * 2.2)]))
-        fp.silk.append(("line", [(cx + 1.2, cy + sgn * 2.2),
-                                 (cx + 2.6, cy + sgn * 2.2)]))
-        fp.silk.append(("line", [(cx + 1.9, cy + sgn * 1.5),
-                                 (cx + 1.9, cy + sgn * 2.9)]))
+        # '+' on the + side
+        fp.silk.append(("line", [(cx + 1.3, cy + sgn * 1.9),
+                                 (cx + 2.7, cy + sgn * 1.9)]))
+        fp.silk.append(("line", [(cx + 2.0, cy + sgn * 1.2),
+                                 (cx + 2.0, cy + sgn * 2.6)]))
+        # '-' on the - side
+        fp.silk.append(("line", [(cx + 1.3, cy - sgn * 1.9),
+                                 (cx + 2.7, cy - sgn * 1.9)]))
     fp.body = [(cx - 4.0, cy - 4.0), (cx + 4.0, cy + 4.0)]
     return fp
 
@@ -308,9 +349,9 @@ def buzzer(ref, value, x, y, rot=0):
     fp.pad("2", "-", None, 7.6, 0.0, PAD_HDR, DRILL_HDR)
     cx, cy = x + 3.8, y
     fp.silk.append(("circle", cx, cy, 6.1))
-    fp.silk.append(("line", [(x - 1.0, y - 1.8), (x + 1.0, y - 1.8),
-                             (x + 1.0, y + 1.8), (x - 1.0, y + 1.8),
-                             (x - 1.0, y - 1.8)]))
+    # crisp '+' mark above pad 1, clear of its copper ring
+    fp.silk.append(("line", [(x - 0.7, y + 2.3), (x + 0.7, y + 2.3)]))
+    fp.silk.append(("line", [(x, y + 1.6), (x, y + 3.0)]))
     fp.body = [(cx - 6.1, cy - 6.1), (cx + 6.1, cy + 6.1)]
     return fp
 
@@ -318,51 +359,53 @@ def buzzer(ref, value, x, y, rot=0):
 #  the board
 # --------------------------------------------------------------------------- #
 def build_parts():
-    """Every part, placed.
+    """Every part, placed on a 100 x 50 mm horizontal board.
 
-    Layout, bottom to top:
-      y 5..16    J_RTC, J_SENSOR, J_LCD, J_PWR along the bottom edge
-      y 17..45   3 x (220R + LED) chains, pointing left, LEDs on the left edge
-                 C1 at the bottom right, BZ1 above it
-      y 45..100  U1, the ESP32 module; four panel buttons down the left edge
+    Layout, left to right:
+      x 1..58    U1 (DOIT ESP32 DevKit V1, ~51.5 x 28.3 mm, 25.40 mm rows)
+                   centred horizontally along y=12.3..37.7 (USB on the left);
+                 J_BTN1..4 along the top edge (above U1);
+                 J_SENSOR, J_RTC, J_LCD along the bottom edge (below U1).
+      x 60..97   J_PWR at the bottom, C1 & BZ1 above it,
+                 3 x (220R -> LED) chains stacked neatly on the upper right.
     """
     parts = []
 
     # ---- ESP32 ------------------------------------------------------------
-    parts.append(esp32_module(ROW_L, PIN1_Y))
+    parts.append(esp32_module(PIN1_X, PIN1_Y, rot=90))
 
-    # ---- left column: the four panel buttons ------------------------------
-    for ref, y in (("J_BTN1", 87.0), ("J_BTN2", 77.0),
-                   ("J_BTN3", 67.0), ("J_BTN4", 57.0)):
+    # ---- top edge: the four panel buttons ---------------------------------
+    for ref, x in (("J_BTN1", 14.0), ("J_BTN2", 22.5),
+                   ("J_BTN3", 31.0), ("J_BTN4", 39.5)):
         parts.append(header_1xN(ref, "", "HDR-TH_1x2-P2.54-V-M",
-                                6.0, y, ["SIG", "GND"]))
+                                x, 45.4, ["SIG", "GND"], rot=270))
 
-    # ---- 3 x (220R -> LED) chains, running leftwards ----------------------
-    # GPIO -> R.1 (right) -> R.2 (left) -> LED.A -> LED.K -> GND
-    # 13 mm apart, so the "R1" / "LED1" / "220R" texts each keep a free lane.
-    for i, y in enumerate((46.0, 33.0, 22.0), start=1):
-        parts.append(axial_resistor("R%d" % i, "220R", 29.16, y, rot=90))
-        parts.append(led_5mm("LED%d" % i, "", 6.3, y, rot=90))
-
-    # ---- bottom row: off-board connectors --------------------------------
-    parts.append(header_1xN("J_RTC", "", "HDR-TH_1x5-P2.54-V-M",
-                            19.5, 5.0, ["VCC", "GND", "CLK", "DAT", "RST"]))
+    # ---- bottom edge: off-board connectors --------------------------------
     parts.append(header_1xN("J_SENSOR", "", "HDR-TH_1x4-P2.54-V-M",
-                            28.0, 5.0, ["VCC", "GND", "SCL", "SDA"]))
+                            10.5, 4.6, ["VCC", "GND", "SCL", "SDA"], rot=270))
+    parts.append(header_1xN("J_RTC", "", "HDR-TH_1x5-P2.54-V-M",
+                            34.5, 4.6, ["VCC", "GND", "CLK", "DAT", "RST"],
+                            rot=90))
     parts.append(header_1xN("J_LCD", "", "HDR-TH_1x4-P2.54-V-M",
-                            36.5, 5.0, ["GND", "VCC", "SDA", "SCL"]))
+                            40.5, 4.6, ["GND", "VCC", "SDA", "SCL"], rot=270))
     parts.append(header_1xN("J_PWR", "", "HDR-TH_1x2-P2.54-V-M",
-                            43.0, 5.0, ["+5V", "GND"]))
+                            61.5, 4.6, ["+5V", "GND"], rot=270))
 
-    # ---- power reservoir + buzzer ----------------------------------------
-    parts.append(electrolytic("C1", "", 44.0, 18.0))
-    parts.append(buzzer("BZ1", "", 38.5, 33.0))
+    # ---- power reservoir + buzzer (bottom right) --------------------------
+    parts.append(electrolytic("C1", "", 64.5, 14.5))
+    parts.append(buzzer("BZ1", "", 76.5, 13.5))
+
+    # ---- 3 x (220R -> LED) chains, running rightwards (upper right) -------
+    # GPIO -> R.1 (left) -> R.2 (right) -> LED.A -> LED.K -> GND
+    for i, y in enumerate((41.5, 34.0, 26.5), start=1):
+        parts.append(axial_resistor("R%d" % i, "220R", 64.0, y, rot=270))
+        parts.append(led_5mm("LED%d" % i, "", 81.5, y, rot=270))
 
     return parts
 
 
 def mount_holes():
-    return [(4.0, 4.0), (46.0, 4.0), (4.0, 96.0), (46.0, 96.0)]
+    return [(4.0, 4.0), (96.0, 4.0), (4.0, 46.0), (96.0, 46.0)]
 
 
 # --------------------------------------------------------------------------- #
@@ -421,16 +464,17 @@ SILK_NAME = {"GND2": "GND"}
 
 
 def esp_pin_names(parts):
-    """Pin names of the ESP32 socket strip: each row keeps to its own side."""
+    """Pin names of the ESP32 socket strip: [(text, x, y, size, rot)]."""
     out = []
     for fp in parts:
         if fp.kind != "module":
             continue
+        half = ROW_SPACE / 2.0
         for p in fp.pads:
-            px, py = fp.abs_pad(p)
-            near_left = px < fp.x + 12.7
-            x, y = fp.at(5.6 if near_left else 19.8, p["dy"])
-            out.append((SILK_NAME.get(p["name"], p["name"]), x, y, 0.9))
+            near_left = p["dx"] < half
+            x, y = fp.at(4.0 if near_left else ROW_SPACE - 4.0, p["dy"])
+            out.append((SILK_NAME.get(p["name"], p["name"]), x, y, 0.85,
+                        fp.rot))
     return out
 import strokefont                                # noqa: E402
 
@@ -438,15 +482,18 @@ import strokefont                                # noqa: E402
 class SilkText:
     """One piece of silkscreen text plus its bounding box."""
 
-    def __init__(self, s, x, y, size, align="middle", anchor="middle"):
+    def __init__(self, s, x, y, size, rot=0, align="middle", anchor="middle",
+                 owner=None):
         self.s = s
         self.x = x
         self.y = y
         self.size = size
+        self.rot = rot
         self.align = align
         self.anchor = anchor
-        self.lines = strokefont.text_polylines(s, x, y, size, align=align,
-                                               anchor=anchor)
+        self.owner = owner
+        self.lines = strokefont.text_polylines(s, x, y, size, rot=rot,
+                                               align=align, anchor=anchor)
         xs = [p[0] for ln in self.lines for p in ln]
         ys = [p[1] for ln in self.lines for p in ln]
         self.box = (min(xs), min(ys), max(xs), max(ys)) if xs else (x, y, x, y)
@@ -459,7 +506,7 @@ class SilkText:
         return (self.box[0] + self.box[2]) / 2.0, (self.box[1] + self.box[3]) / 2.0
 
 
-BOARD_TITLE = ("ESP32 WEATHER STATION 50X100MM REV 1.1", 25.0, 1.3, 0.9)
+BOARD_TITLE = ("ESP32 WEATHER STATION 100X50MM REV 1.2", 68.5, 47.4, 0.9)
 
 
 def silk_texts(parts, include_title=False):
@@ -467,11 +514,13 @@ def silk_texts(parts, include_title=False):
     out = []
     for fp in parts:
         (rx, ry), rsize = fp.ref_pos()
-        out.append(SilkText(fp.ref, rx, ry, rsize, anchor="middle"))
+        out.append(SilkText(fp.ref, rx, ry, rsize, anchor="middle",
+                            owner=fp.ref))
         v = fp.value_pos()
         if v:
             (vx, vy), vsize = v
-            out.append(SilkText(fp.value, vx, vy, vsize, anchor="middle"))
+            out.append(SilkText(fp.value, vx, vy, vsize, anchor="middle",
+                                owner=fp.ref))
     if include_title:
         txt, tx, ty, tsz = BOARD_TITLE
         out.append(SilkText(txt, tx, ty, tsz, align="middle", anchor="baseline"))
@@ -526,7 +575,8 @@ def check_silk(parts, holes):
     errs = []
     pads = all_pads(parts)
     texts = silk_texts(parts, include_title=True)
-    texts += [SilkText(n, x, y, sz) for n, x, y, sz in esp_pin_names(parts)]
+    texts += [SilkText(n, x, y, sz, rot=rot, owner="U1")
+              for n, x, y, sz, rot in esp_pin_names(parts)]
     lines = silk_graphics(parts, holes)
 
     # 1. text boxes must be inside the board and away from every pad
@@ -574,11 +624,13 @@ def check_silk(parts, holes):
                 errs.append("%s silk line crosses pad %s.%s"
                             % (ref, pr, p["num"]))
 
-    # 4. text must not sit on another part's silk box
+    # 4. text must not sit on another part's body/courtyard box
+    #    (U1's own ref and pin labels belong inside U1; everything else must
+    #     stay outside U1's full physical 51.45 x 28.33 mm envelope too)
     for t in texts:
         for fp in parts:
-            if fp.ref == t.s or fp.kind == "module":
-                continue          # pin names are meant to sit inside the module
+            if fp.ref == t.owner:
+                continue
             (x0, y0), (x1, y1) = fp.body
             box = (min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1))
             if _box_overlap(t.box, box, 0.0):
@@ -605,7 +657,7 @@ def pc_hole_r():
 
 
 def drc(parts, holes, clearance=0.3):
-    """Pad-to-pad clearance, board edge, and silk-over-pad checks."""
+    """Pad-to-pad clearance, board edge, mounting-hole & courtyard checks."""
     pads = all_pads(parts)
     errs = []
     for i in range(len(pads)):
@@ -630,6 +682,19 @@ def drc(parts, holes, clearance=0.3):
         if not (2.0 < hx < BW - 2.0 and 2.0 < hy < BH - 2.0):
             errs.append("mounting hole (%.1f, %.1f) too close to the edge"
                         % (hx, hy))
+
+    # component body courtyard clearance (>= 0.5 mm between any two parts)
+    for i in range(len(parts)):
+        a0, a1 = parts[i].body
+        ba = (min(a0[0], a1[0]), min(a0[1], a1[1]),
+              max(a0[0], a1[0]), max(a0[1], a1[1]))
+        for j in range(i + 1, len(parts)):
+            b0, b1 = parts[j].body
+            bb = (min(b0[0], b1[0]), min(b0[1], b1[1]),
+                  max(b0[0], b1[0]), max(b0[1], b1[1]))
+            if _box_overlap(ba, bb, 0.5):
+                errs.append("%s body courtyard overlaps %s (< 0.5 mm gap)"
+                            % (parts[i].ref, parts[j].ref))
 
     # silkscreen collisions are checked by check_silk()
     return errs

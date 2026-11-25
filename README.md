@@ -10,11 +10,11 @@ hardware specification.
 | `netlist.txt` / `netlist.json` | Netlist extracted from the drawn geometry |
 | `bom.csv` | Bill of materials |
 | `preview.png` | Quick raster preview of the new sheet (handy to eyeball placement) |
-| `ESP32_WeatherStation_2026-11-11_pcb.json` | **PCB for EasyEDA Standard** — open it, ratlines are ready, route and go |
-| `pcb_preview.png` / `.pdf` | 50 × 100 mm board, top view with the ratsnest (see what you are about to route) |
-| `pcb_easyeda_check.txt` | What the PCB generator verified: pads, nets, DRC, silk, ratline length |
+| `ESP32_WeatherStation_2026-11-11_pcb.json` | **PCB for EasyEDA Standard** — 100 × 50 mm horizontal, open it, ratlines are ready, route and go |
+| `pcb_preview.png` / `.pdf` | 100 × 50 mm horizontal board, top view with the ratsnest (see what you are about to route) |
+| `pcb_easyeda_check.txt` | What the PCB generator verified: pads, nets, DRC, courtyard clearance, silk, ratline length |
 | `tools/build_easyeda_pcb.py` | The PCB generator (writes the JSON above) |
-| `tools/pcb_common.py` | Placement of every part on the 50 × 100 mm board — shared by `build_easyeda_pcb.py` and `build_pcb_preview.py` |
+| `tools/pcb_common.py` | Placement of every part on the 100 × 50 mm board — shared by `build_easyeda_pcb.py` and `build_pcb_preview.py` |
 | `tools/build_pcb_preview.py` | Draws `pcb_preview.*` from the same placement |
 | `tools/build_schematic.py` | The generator — edit this and re-run to change anything |
 | `tools/check_layout.py` | Layout guard: bounds, component overlap, label collision |
@@ -149,14 +149,15 @@ routed wires, which keeps the 10-unit pin pitch on the ESP32 symbol readable.
 
 ## 5. PCB for EasyEDA (route it yourself)
 
-`ESP32_WeatherStation_2026-11-11_pcb.json` is a **50 × 100 mm board in native
-EasyEDA Standard format** (`docType 3`, editorVersion 6.4.25 — the same format
-family as the schematic). Everything except the tracks is done:
+`ESP32_WeatherStation_2026-11-11_pcb.json` is a **100 × 50 mm horizontal board
+in native EasyEDA Standard format** (`docType 3`, editorVersion 6.4.25 — the same
+format family as the schematic). Everything except the tracks is done:
 
 * all **17 footprints** placed and rotated, silkscreen drawn, **pin 1 marked**;
 * **69 pads**, each carrying its real pin number and its **net name from the
   schematic** — so EasyEDA draws the ratlines for you;
-* board outline 50 × 100 mm on the outline layer, **4 × 3.2 mm mounting holes**;
+* board outline 100 × 50 mm (longer side along X) on the outline layer,
+  **4 × 3.2 mm M3 mounting holes**;
 * routing rules inside the file: track 0.6 mm, clearance 0.3 mm, via 0.8/0.4 mm,
   `+5V` and `GND` flagged as 1.2 mm nets.
 
@@ -167,11 +168,18 @@ tie the two together.
 
 | | value |
 |---|---|
-| board | 50 × 100 mm, origin bottom-left, USB end at the top |
-| ESP32 | body 28.33 × 51.45 mm, 2 × 15 sockets on 2.54 mm, rows 25.4 mm apart |
-| pin 1 | `3V3`, at the USB end (VIN opposite it), EN at the far end |
-| footprints | headers `HDR-TH_1xN-P2.54-V-M`, `R_AXIAL-0.4`, `LED-TH_F5`, `CAP-TH_D8.0-P3.5`, `BUZ-TH_BD12.5` |
-| pads | ⌀1.8 mm / 1.0 mm drill on headers, ⌀2.0 mm / 0.9 mm on R, LED, C1 |
+| board | 100 × 50 mm horizontal, origin bottom-left, USB end on the left |
+| ESP32 (`U1`) | DOIT DevKit V1, body **51.45 × 28.33 mm**, 2 × 15 sockets on 2.54 mm, rows **25.40 mm (1.0") apart** |
+| physical keepout | non-`U1` pads ≥ 5.3 mm, non-`U1` silk ≥ 3.7 mm, and M3 holes ≥ 5.3 mm clear of `U1`'s full 51.45 × 28.33 mm PCB body |
+| pin 1 | `3V3`, bottom-left at the USB end (`VIN` top-left opposite it), `EN` at the far right |
+| footprints | `ESP32-DEVKIT-V1-30PIN_DZ`, headers `HDR-TH_1xN-P2.54-V-M`, `R_AXIAL-0.4`, `LED-TH_F5`, `CAP-TH_D8.0-P3.5`, `BUZ-TH_BD12.5` |
+| pads | ⌀1.8 mm / 1.0 mm drill on headers & `U1`, ⌀2.0 mm / 0.9 mm on R, LED, C1 |
+
+Note on module footprint naming: the current schematic (`SCH_ESP32_WeatherStation_2026-11-11.json`)
+and EasyEDA PCB both keep the 30-pin **DOIT ESP32 DevKit V1** pinout and
+`ESP32-DEVKIT-V1-30PIN_DZ` footprint (**25.40 mm / 1.0"** row spacing, ~51 × 28 mm
+PCB body) rather than the narrower `COMM-TH_30P-P2.54_ESP32-C3-32S-KIT`
+footprint (22.86 mm / 0.9" spacing) that came from the original seed schematic.
 
 What the generator checks before it writes the file (`pcb_easyeda_check.txt`):
 
@@ -183,9 +191,10 @@ connectivity   : OK - board pads match the schematic netlist exactly
 
 i.e. all **19 nets / 56 wired pads** land on the right pads, and the 13 spare
 GPIO (D15, D2, D4, D5, RX0, TX0, D23, D12, D35, D34, VN, VP, EN) are left free
-on purpose. `pcb_preview.png` shows the ratsnest: about **1090 mm** of track to
-route. Everything is clear for a single-sided board as well — no track has to
-cross another if you route `+5V`/`GND` around the edge.
+on purpose. `pcb_preview.png` shows the ratsnest: about **609 mm** of track to
+route — `J_BTN1..4` sit cleanly along the top edge, `J_SENSOR`, `J_RTC`, and
+`J_LCD` along the bottom edge right next to `U1`'s matching pins, and `J_PWR`,
+`C1`, `BZ1`, `R1..R3`, and `LED1..LED3` fill the right half of the board.
 
 If your module's silkscreen has `VIN`/`3V3` at the other end, rebuild with
 `python3 tools/build_easyeda_pcb.py --mirror-esp32`: that writes
